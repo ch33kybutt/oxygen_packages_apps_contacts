@@ -55,6 +55,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
@@ -73,6 +74,7 @@ import android.widget.TextView;
 @SuppressWarnings("deprecation")
 public class TwelveKeyDialer extends Activity implements View.OnClickListener,
         View.OnLongClickListener, View.OnKeyListener,
+        View.OnTouchListener,
         AdapterView.OnItemClickListener, TextWatcher {
     private static final String EMPTY_NUMBER = "";
     private static final String TAG = "TwelveKeyDialer";
@@ -206,6 +208,7 @@ public class TwelveKeyDialer extends Activity implements View.OnClickListener,
         mDigits = (EditText) findViewById(R.id.digits);
         mDigits.setKeyListener(DialerKeyListener.getInstance());
         mDigits.setOnClickListener(this);
+        mDigits.setOnTouchListener(this);
         mDigits.setOnKeyListener(this);
 
         maybeAddNumberFormatting();
@@ -225,6 +228,7 @@ public class TwelveKeyDialer extends Activity implements View.OnClickListener,
 
         if (r.getBoolean(R.bool.config_show_onscreen_dial_button)) {
             mDialButton.setOnClickListener(this);
+            mDialButton.setOnTouchListener(this);
         } else {
             mDialButton.setVisibility(View.GONE); // It's VISIBLE by default
             mDialButton = null;
@@ -232,6 +236,7 @@ public class TwelveKeyDialer extends Activity implements View.OnClickListener,
 
         view = mVoicemailDialAndDeleteRow.findViewById(R.id.deleteButton);
         view.setOnClickListener(this);
+        view.setOnTouchListener(this);
         view.setOnLongClickListener(this);
         mDelete = view;
 
@@ -393,6 +398,7 @@ public class TwelveKeyDialer extends Activity implements View.OnClickListener,
         // Setup the listeners for the buttons
         View view = findViewById(R.id.one);
         view.setOnClickListener(this);
+        view.setOnTouchListener(this);
         view.setOnLongClickListener(this);
 
         findViewById(R.id.two).setOnClickListener(this);
@@ -405,11 +411,23 @@ public class TwelveKeyDialer extends Activity implements View.OnClickListener,
         findViewById(R.id.nine).setOnClickListener(this);
         findViewById(R.id.star).setOnClickListener(this);
 
+        findViewById(R.id.two).setOnTouchListener(this);
+        findViewById(R.id.three).setOnTouchListener(this);
+        findViewById(R.id.four).setOnTouchListener(this);
+        findViewById(R.id.five).setOnTouchListener(this);
+        findViewById(R.id.six).setOnTouchListener(this);
+        findViewById(R.id.seven).setOnTouchListener(this);
+        findViewById(R.id.eight).setOnTouchListener(this);
+        findViewById(R.id.nine).setOnTouchListener(this);
+        findViewById(R.id.star).setOnTouchListener(this);
+
         view = findViewById(R.id.zero);
         view.setOnClickListener(this);
+        view.setOnTouchListener(this);
         view.setOnLongClickListener(this);
 
         findViewById(R.id.pound).setOnClickListener(this);
+        findViewById(R.id.pound).setOnTouchListener(this);
     }
 
     @Override
@@ -644,7 +662,6 @@ public class TwelveKeyDialer extends Activity implements View.OnClickListener,
     }
 
     private void keyPressed(int keyCode) {
-        mHaptic.vibrate();
         KeyEvent event = new KeyEvent(KeyEvent.ACTION_DOWN, keyCode);
         mDigits.onKeyDown(keyCode, event);
     }
@@ -728,13 +745,11 @@ public class TwelveKeyDialer extends Activity implements View.OnClickListener,
                 return;
             }
             case R.id.dialButton: {
-                mHaptic.vibrate();  // Vibrate here too, just like we do for the regular keys
                 dialButtonPressed();
                 return;
             }
             case R.id.voicemailButton: {
                 callVoicemail();
-                mHaptic.vibrate();
                 return;
             }
             case R.id.digits: {
@@ -744,6 +759,15 @@ public class TwelveKeyDialer extends Activity implements View.OnClickListener,
                 return;
             }
         }
+    }
+
+    @Override
+    public boolean onTouch(View view, MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            mHaptic.vibrate();
+        }
+        // always return false, so onClick() is still launched afterwards
+        return false;
     }
 
     public boolean onLongClick(View view) {
@@ -1199,6 +1223,7 @@ public class TwelveKeyDialer extends Activity implements View.OnClickListener,
         mVoicemailButton = mVoicemailDialAndDeleteRow.findViewById(R.id.voicemailButton);
         if (hasVoicemail) {
             mVoicemailButton.setOnClickListener(this);
+            mVoicemailButton.setOnTouchListener(this);
         } else {
             mVoicemailButton.setEnabled(false);
         }
